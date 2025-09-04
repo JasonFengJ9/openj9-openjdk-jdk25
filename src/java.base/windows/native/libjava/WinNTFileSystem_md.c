@@ -23,6 +23,12 @@
  * questions.
  */
 
+/*
+ * ===========================================================================
+ * (c) Copyright IBM Corp. 2025, 2025 All Rights Reserved
+ * ===========================================================================
+ */
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -657,6 +663,9 @@ removeFileOrDirectory(const jchar *path, jboolean allowDeleteReadOnlyFiles)
         return 1;
     } else if (a & FILE_ATTRIBUTE_DIRECTORY) {
         // read-only attribute cannot be set on directories
+        // OpenJ9 AttachAPI creates directories requiring SetFileAttributesW() invocation.
+        // For details, refer https://github.com/eclipse-openj9/openj9/issues/22443.
+        SetFileAttributesW(path, FILE_ATTRIBUTE_NORMAL);
         return !RemoveDirectoryW(path);
     } else {
         // unset read-only attribute if deleting read-only files is enabled
